@@ -3,543 +3,494 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FIFA World Cup 2026 — Venues</title>
+  <title>FIFA World Cup 2026 — Venues & Schedule</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap');
-
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --fifa-blue: #0a1628;
-      --fifa-gold: #c9a84c;
-      --gold-light: #e8c96a;
-      --usa: #3a7bd5;
-      --mexico: #2da44e;
-      --canada: #d63b3b;
-      --surface: #111c2e;
-      --border: rgba(201,168,76,0.2);
-      --text: #e8e8e8;
-      --muted: #8899aa;
+      --blue: #0a1628; --gold: #c9a84c; --gold-l: #e8c96a;
+      --usa: #3a7bd5; --mex: #2da44e; --can: #d63b3b;
+      --surface: #111c2e; --surface2: #18263d; --border: rgba(201,168,76,0.18);
+      --text: #e8e8e8; --muted: #7a90a8; --panel: 340px;
     }
+    html, body { height: 100%; background: var(--blue); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
 
-    html, body {
-      height: 100%;
-      background: var(--fifa-blue);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-    }
-
-    /* ── HEADER ── */
+    /* HEADER */
     header {
-      position: relative;
-      z-index: 1000;
-      background: var(--fifa-blue);
+      position: relative; z-index: 1001; background: var(--blue);
       border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      padding: 11px 18px; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-wrap: wrap;
     }
+    .hdr-left { display: flex; align-items: center; gap: 12px; }
+    .hdr-left h1 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--gold-l); }
+    .hdr-left p { font-size: 10px; color: var(--muted); letter-spacing: 1.4px; text-transform: uppercase; margin-top: 1px; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; }
+    .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-weight: 500; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .d-usa { background: var(--usa); } .d-mex { background: var(--mex); } .d-can { background: var(--can); }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .trophy {
-      font-size: 28px;
-      line-height: 1;
-    }
-
-    .title-block h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 2px;
-      color: var(--gold-light);
-      line-height: 1;
-    }
-
-    .title-block p {
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-top: 2px;
-    }
-
-    /* ── LEGEND ── */
-    .legend {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dot-usa    { background: var(--usa); }
-    .dot-mexico { background: var(--mexico); }
-    .dot-canada { background: var(--canada); }
-
-    /* ── STATS BAR ── */
-    .stats-bar {
-      position: relative;
-      z-index: 999;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: center;
-      gap: 0;
-    }
-
-    .stat {
-      padding: 10px 28px;
-      text-align: center;
-      border-right: 1px solid var(--border);
-    }
+    /* STATS */
+    .stats { position: relative; z-index: 1000; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: center; }
+    .stat { padding: 8px 22px; text-align: center; border-right: 1px solid var(--border); }
     .stat:last-child { border-right: none; }
+    .sn { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold); letter-spacing: 1px; line-height: 1; }
+    .sl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; }
 
-    .stat-number {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      color: var(--fifa-gold);
-      letter-spacing: 1px;
-      line-height: 1;
+    /* MAIN LAYOUT */
+    .main { display: flex; height: calc(100vh - 93px); }
+
+    /* SCHEDULE PANEL */
+    #panel {
+      width: var(--panel); flex-shrink: 0; background: var(--surface);
+      border-right: 1px solid var(--border); display: flex; flex-direction: column;
+      overflow: hidden; transition: width 0.25s ease;
+    }
+    #panel.collapsed { width: 0; }
+
+    .panel-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .tab {
+      flex: 1; padding: 9px 4px; font-size: 10px; font-weight: 600; text-align: center;
+      letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted);
+      cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--gold-l); border-bottom-color: var(--gold); }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    .panel-search {
+      padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .panel-search input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 12px;
+      font-family: inherit; outline: none;
+    }
+    .panel-search input::placeholder { color: var(--muted); }
+    .panel-search input:focus { border-color: var(--gold); }
+
+    #schedule-list { overflow-y: auto; flex: 1; }
+    #schedule-list::-webkit-scrollbar { width: 4px; }
+    #schedule-list::-webkit-scrollbar-track { background: transparent; }
+    #schedule-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .stage-header {
+      padding: 10px 12px 5px; font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0;
+      background: var(--surface); z-index: 2;
     }
 
-    .stat-label {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 2px;
+    .match-card {
+      padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer; transition: background 0.12s;
     }
+    .match-card:hover { background: var(--surface2); }
+    .match-card.highlight { background: rgba(201,168,76,0.08); }
 
-    /* ── MAP ── */
-    #map {
-      width: 100%;
-      height: calc(100vh - 105px);
+    .mc-date { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+    .mc-teams {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; justify-content: space-between; gap: 4px;
     }
+    .mc-score {
+      font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+      color: var(--gold-l); letter-spacing: 1px; white-space: nowrap;
+    }
+    .mc-venue { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .mc-group { font-size: 9px; color: var(--muted); font-weight: 600; letter-spacing: 0.8px; }
 
-    /* ── POPUP STYLES ── */
+    .badge-final   { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:.5px; background:rgba(201,168,76,.15); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
+    .badge-semi    { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; background:rgba(58,123,213,.15); color:#6fa4f0; border:1px solid rgba(58,123,213,.3); }
+    .badge-quarter { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; background:rgba(45,164,78,.15); color:#5dd67a; border:1px solid rgba(45,164,78,.3); }
+
+    /* MAP */
+    #map-wrap { flex: 1; position: relative; }
+    #map { width: 100%; height: 100%; }
+
+    /* TOGGLE BUTTON */
+    #toggle-panel {
+      position: absolute; top: 12px; left: 12px; z-index: 1002;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 12px; cursor: pointer; font-size: 12px; font-weight: 600;
+      color: var(--gold-l); letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;
+      transition: background 0.15s; user-select: none;
+    }
+    #toggle-panel:hover { background: var(--surface2); }
+
+    /* POPUP */
     .leaflet-popup-content-wrapper {
-      background: var(--surface) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 10px !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
-      padding: 0 !important;
+      background: var(--surface) !important; border: 1px solid var(--border) !important;
+      border-radius: 10px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important; padding: 0 !important;
     }
+    .leaflet-popup-content { margin: 0 !important; min-width: 260px !important; }
+    .leaflet-popup-tip { background: var(--surface) !important; }
+    .leaflet-popup-close-button { color: var(--muted) !important; font-size: 18px !important; top: 8px !important; right: 10px !important; }
 
-    .leaflet-popup-content {
-      margin: 0 !important;
-      min-width: 240px !important;
-    }
+    .popup-inner { padding: 14px; }
+    .popup-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 5px; }
+    .tag-usa { color: var(--usa); } .tag-mexico { color: var(--mex); } .tag-canada { color: var(--can); }
+    .popup-name { font-family: 'Bebas Neue', sans-serif; font-size: 19px; color: var(--gold-l); letter-spacing: 1px; line-height: 1.1; }
+    .popup-city { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+    .popup-hr { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+    .popup-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
+    .prl { color: var(--muted); } .prv { color: var(--text); font-weight: 500; }
+    .popup-matches-title { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); margin: 10px 0 6px; }
+    .popup-match { font-size: 11px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; gap: 8px; }
+    .popup-match:last-child { border-bottom: none; }
+    .pm-info { color: var(--muted); font-size: 10px; }
+    .pm-score { font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: var(--gold-l); white-space: nowrap; }
 
-    .leaflet-popup-tip {
-      background: var(--surface) !important;
-    }
-
-    .leaflet-popup-close-button {
-      color: var(--muted) !important;
-      font-size: 18px !important;
-      top: 8px !important;
-      right: 10px !important;
-    }
-
-    .popup-inner {
-      padding: 16px;
-    }
-
-    .popup-country-tag {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .tag-usa    { color: var(--usa); }
-    .tag-mexico { color: var(--mexico); }
-    .tag-canada { color: var(--canada); }
-
-    .popup-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px;
-      color: var(--gold-light);
-      letter-spacing: 1px;
-      line-height: 1.1;
-      margin-bottom: 2px;
-    }
-
-    .popup-city {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .popup-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 10px 0;
-    }
-
-    .popup-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .popup-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-    }
-
-    .popup-row-label { color: var(--muted); }
-    .popup-row-value { color: var(--text); font-weight: 500; }
-
-    .popup-badge {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-    }
-
-    .badge-final     { background: rgba(201,168,76,0.15); color: var(--fifa-gold); border: 1px solid rgba(201,168,76,0.4); }
-    .badge-semi      { background: rgba(58,123,213,0.15); color: #6fa4f0; border: 1px solid rgba(58,123,213,0.4); }
-    .badge-quarter   { background: rgba(45,164,78,0.15); color: #5dd67a; border: 1px solid rgba(45,164,78,0.4); }
-    .badge-opening   { background: rgba(214,59,59,0.15); color: #f07070; border: 1px solid rgba(214,59,59,0.4); }
-
-    /* Custom marker */
-    .venue-marker {
-      width: 28px;
-      height: 28px;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 2px solid white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-      transition: transform 0.15s ease;
-    }
-
-    .venue-marker.usa    { background: var(--usa); }
-    .venue-marker.mexico { background: var(--mexico); }
-    .venue-marker.canada { background: var(--canada); }
-
-    .venue-marker-inner {
-      transform: rotate(45deg);
-      font-size: 12px;
-    }
-
-    @media (max-width: 600px) {
-      .stats-bar { display: none; }
-      #map { height: calc(100vh - 66px); }
+    @media (max-width: 700px) {
+      :root { --panel: 280px; }
+      .stats .stat:nth-child(n+4) { display: none; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="trophy">🏆</div>
-    <div class="title-block">
-      <h1>FIFA World Cup 2026 — All 16 Venues</h1>
-      <p>Canada · Mexico · United States &nbsp;|&nbsp; June 11 – July 19, 2026</p>
+  <div class="hdr-left">
+    <div>
+      <h1>🏆 FIFA World Cup 2026 — Venues & Schedule</h1>
+      <p>Canada · Mexico · United States &nbsp;|&nbsp; June 11 – July 19, 2026 &nbsp;|&nbsp; 104 Matches</p>
     </div>
   </div>
   <div class="legend">
-    <div class="legend-item"><span class="dot dot-usa"></span>United States (11)</div>
-    <div class="legend-item"><span class="dot dot-mexico"></span>Mexico (3)</div>
-    <div class="legend-item"><span class="dot dot-canada"></span>Canada (2)</div>
+    <div class="leg"><span class="dot d-usa"></span>United States (11)</div>
+    <div class="leg"><span class="dot d-mex"></span>Mexico (3)</div>
+    <div class="leg"><span class="dot d-can"></span>Canada (2)</div>
   </div>
 </header>
 
-<div class="stats-bar">
-  <div class="stat"><div class="stat-number">16</div><div class="stat-label">Venues</div></div>
-  <div class="stat"><div class="stat-number">3</div><div class="stat-label">Nations</div></div>
-  <div class="stat"><div class="stat-number">48</div><div class="stat-label">Teams</div></div>
-  <div class="stat"><div class="stat-number">104</div><div class="stat-label">Matches</div></div>
-  <div class="stat"><div class="stat-number">Jul 19</div><div class="stat-label">Final Date</div></div>
+<div class="stats">
+  <div class="stat"><div class="sn">16</div><div class="sl">Venues</div></div>
+  <div class="stat"><div class="sn">3</div><div class="sl">Nations</div></div>
+  <div class="stat"><div class="sn">48</div><div class="sl">Teams</div></div>
+  <div class="stat"><div class="sn">104</div><div class="sl">Matches</div></div>
+  <div class="stat"><div class="sn">Jul 19</div><div class="sl">Final</div></div>
 </div>
 
-<div id="map"></div>
+<div class="main">
+  <div id="panel">
+    <div class="panel-tabs">
+      <div class="tab active" data-tab="all">All Matches</div>
+      <div class="tab" data-tab="group">Group Stage</div>
+      <div class="tab" data-tab="knockout">Knockouts</div>
+    </div>
+    <div class="panel-search">
+      <input type="text" id="search-input" placeholder="Search team or venue…" />
+    </div>
+    <div id="schedule-list"></div>
+  </div>
+
+  <div id="map-wrap">
+    <div id="toggle-panel">☰ Schedule</div>
+    <div id="map"></div>
+  </div>
+</div>
 
 <script>
-  const venues = [
-    {
-      name: "Mercedes-Benz Stadium",
-      city: "Atlanta, Georgia",
-      country: "usa",
-      lat: 33.7553, lng: -84.4006,
-      capacity: "75,000",
-      opened: 2017,
-      tenant: "Atlanta United / Falcons",
-      note: "Semi-Final",
-      noteType: "semi",
-      detail: "Retractable roof with full A/C. Hosted FIFA Club World Cup 2025."
-    },
-    {
-      name: "Gillette Stadium",
-      city: "Foxborough, Massachusetts",
-      country: "usa",
-      lat: 42.0909, lng: -71.2644,
-      capacity: "65,000",
-      opened: 2002,
-      tenant: "New England Patriots / Revolution",
-      note: null,
-      detail: "Newly renovated with the largest outdoor HD video board in the US."
-    },
-    {
-      name: "AT&T Stadium",
-      city: "Arlington, Texas",
-      country: "usa",
-      lat: 32.7480, lng: -97.0928,
-      capacity: "94,000",
-      opened: 2009,
-      tenant: "Dallas Cowboys",
-      note: "Semi-Final",
-      noteType: "semi",
-      detail: "Largest NFL stadium. Retractable roof with full A/C. Known as 'The Death Star.'"
-    },
-    {
-      name: "NRG Stadium",
-      city: "Houston, Texas",
-      country: "usa",
-      lat: 29.6847, lng: -95.4107,
-      capacity: "72,000",
-      opened: 2002,
-      tenant: "Houston Texans",
-      note: null,
-      detail: "Retractable roof with climate control."
-    },
-    {
-      name: "Arrowhead Stadium",
-      city: "Kansas City, Missouri",
-      country: "usa",
-      lat: 39.0490, lng: -94.4840,
-      capacity: "76,000+",
-      opened: 1972,
-      tenant: "Kansas City Chiefs",
-      note: "Quarter-Final",
-      noteType: "quarter",
-      detail: "Guinness record holder for loudest crowd roar at a sports stadium."
-    },
-    {
-      name: "SoFi Stadium",
-      city: "Inglewood, California",
-      country: "usa",
-      lat: 33.9535, lng: -118.3390,
-      capacity: "70,000",
-      opened: 2020,
-      tenant: "LA Rams / LA Chargers",
-      note: "Quarter-Final",
-      noteType: "quarter",
-      detail: "Newest stadium in the tournament. Future host of LA 2028 Olympics opening & closing ceremonies."
-    },
-    {
-      name: "Hard Rock Stadium",
-      city: "Miami Gardens, Florida",
-      country: "usa",
-      lat: 25.9579, lng: -80.2389,
-      capacity: "65,000",
-      opened: 1987,
-      tenant: "Miami Dolphins",
-      note: null,
-      detail: "Also hosts F1 Miami Grand Prix and the Miami Open tennis tournament."
-    },
-    {
-      name: "MetLife Stadium",
-      city: "East Rutherford, New Jersey",
-      country: "usa",
-      lat: 40.8135, lng: -74.0745,
-      capacity: "82,500",
-      opened: 2010,
-      tenant: "NY Giants / NY Jets",
-      note: "🏆 FINAL",
-      noteType: "final",
-      detail: "Host of the July 19 World Cup Final. Hosted Copa America Centenario final in 2016."
-    },
-    {
-      name: "Lincoln Financial Field",
-      city: "Philadelphia, Pennsylvania",
-      country: "usa",
-      lat: 39.9014, lng: -75.1676,
-      capacity: "67,594",
-      opened: 2003,
-      tenant: "Philadelphia Eagles",
-      note: null,
-      detail: "Home of the Eagles, one of the NFL's most passionate fanbases."
-    },
-    {
-      name: "Levi's Stadium",
-      city: "Santa Clara, California",
-      country: "usa",
-      lat: 37.4033, lng: -121.9694,
-      capacity: "68,500",
-      opened: 2014,
-      tenant: "San Francisco 49ers",
-      note: null,
-      detail: "Modern open-air stadium with a translucent roof panel."
-    },
-    {
-      name: "Lumen Field",
-      city: "Seattle, Washington",
-      country: "usa",
-      lat: 47.5952, lng: -122.3316,
-      capacity: "69,000",
-      opened: 2002,
-      tenant: "Seattle Seahawks / Sounders",
-      note: null,
-      detail: "Distinctive roof design amplifies crowd noise. Known as one of the loudest venues in sports."
-    },
-    {
-      name: "BMO Field",
-      city: "Toronto, Ontario",
-      country: "canada",
-      lat: 43.6332, lng: -79.4186,
-      capacity: "45,736",
-      opened: 2007,
-      tenant: "Toronto FC / TFC",
-      note: null,
-      detail: "Expanded specifically for the 2026 World Cup. Canada's most intimate venue."
-    },
-    {
-      name: "BC Place",
-      city: "Vancouver, British Columbia",
-      country: "canada",
-      lat: 49.2768, lng: -123.1120,
-      capacity: "54,000",
-      opened: 1983,
-      tenant: "Vancouver Whitecaps / BC Lions",
-      note: null,
-      detail: "Hosted the 2010 Winter Olympics and 2015 Women's World Cup Final."
-    },
-    {
-      name: "Estadio Azteca",
-      city: "Mexico City, Mexico",
-      country: "mexico",
-      lat: 19.3029, lng: -99.1505,
-      capacity: "83,000",
-      opened: 1966,
-      tenant: "Club América / Cruz Azul",
-      note: "⚽ Opening Match",
-      noteType: "opening",
-      detail: "Only stadium to host three World Cups (1970, 1986, 2026). Site of Maradona's 'Hand of God' goal. Sits at 2,240m elevation."
-    },
-    {
-      name: "Estadio BBVA",
-      city: "Monterrey, Mexico",
-      country: "mexico",
-      lat: 25.6692, lng: -100.2444,
-      capacity: "53,500",
-      opened: 2015,
-      tenant: "CF Monterrey (Rayados)",
-      note: null,
-      detail: "Latin America's first LEED-certified stadium. Steep grandstands with excellent sightlines."
-    },
-    {
-      name: "Estadio Akron",
-      city: "Zapopan / Guadalajara, Mexico",
-      country: "mexico",
-      lat: 20.6818, lng: -103.4626,
-      capacity: "49,800",
-      opened: 2010,
-      tenant: "Chivas de Guadalajara",
-      note: null,
-      detail: "Spherical coliseum-like design at 1,566m elevation. Home of the beloved Chivas."
+// ── SCHEDULE DATA ────────────────────────────────────────────────────────────
+const matches = [
+  // GROUP STAGE — MD1
+  { stage:'Group Stage', date:'Thu Jun 12', group:'A', home:'Mexico', away:'South Africa', score:'2-0', time:'3:00 PM ET', venue:'Mexico City' },
+  { stage:'Group Stage', date:'Thu Jun 12', group:'A', home:'South Korea', away:'Czechia', score:'2-1', time:'10:00 PM ET', venue:'Guadalajara' },
+  { stage:'Group Stage', date:'Fri Jun 13', group:'B', home:'Canada', away:'Bosnia & Herz.', score:'1-1', time:'3:00 PM ET', venue:'Toronto' },
+  { stage:'Group Stage', date:'Fri Jun 13', group:'D', home:'USA', away:'Paraguay', score:'4-1', time:'9:00 PM ET', venue:'Los Angeles' },
+  { stage:'Group Stage', date:'Sat Jun 14', group:'B', home:'Qatar', away:'Switzerland', score:'1-1', time:'3:00 PM ET', venue:'San Francisco' },
+  { stage:'Group Stage', date:'Sat Jun 14', group:'C', home:'Brazil', away:'Morocco', score:'1-1', time:'6:00 PM ET', venue:'New York/NJ' },
+  { stage:'Group Stage', date:'Sat Jun 14', group:'C', home:'Haiti', away:'Scotland', score:'0-1', time:'9:00 PM ET', venue:'Boston' },
+  { stage:'Group Stage', date:'Sun Jun 15', group:'D', home:'Australia', away:'Türkiye', score:'2-0', time:'12:00 AM ET', venue:'Vancouver' },
+  { stage:'Group Stage', date:'Sun Jun 15', group:'E', home:'Germany', away:'Curaçao', score:'7-1', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Group Stage', date:'Sun Jun 15', group:'F', home:'Netherlands', away:'Japan', score:'2-2', time:'4:00 PM ET', venue:'Dallas' },
+  { stage:'Group Stage', date:'Sun Jun 15', group:'E', home:'Ivory Coast', away:'Ecuador', score:'1-0', time:'7:00 PM ET', venue:'Philadelphia' },
+  { stage:'Group Stage', date:'Sun Jun 15', group:'F', home:'Sweden', away:'Tunisia', score:'5-1', time:'10:00 PM ET', venue:'Monterrey' },
+  { stage:'Group Stage', date:'Mon Jun 16', group:'H', home:'Spain', away:'Cabo Verde', score:'0-0', time:'12:00 PM ET', venue:'Atlanta' },
+  { stage:'Group Stage', date:'Mon Jun 16', group:'G', home:'Belgium', away:'Egypt', score:'1-1', time:'3:00 PM ET', venue:'Seattle' },
+  { stage:'Group Stage', date:'Mon Jun 16', group:'H', home:'Saudi Arabia', away:'Uruguay', score:'1-1', time:'6:00 PM ET', venue:'Miami' },
+  { stage:'Group Stage', date:'Mon Jun 16', group:'G', home:'Iran', away:'New Zealand', score:'2-2', time:'9:00 PM ET', venue:'Los Angeles' },
+  { stage:'Group Stage', date:'Tue Jun 17', group:'I', home:'France', away:'Senegal', score:'3-1', time:'3:00 PM ET', venue:'New York/NJ' },
+  { stage:'Group Stage', date:'Tue Jun 17', group:'I', home:'Iraq', away:'Norway', score:'1-4', time:'6:00 PM ET', venue:'Boston' },
+  { stage:'Group Stage', date:'Tue Jun 17', group:'J', home:'Argentina', away:'Algeria', score:'3-0', time:'9:00 PM ET', venue:'Kansas City' },
+  { stage:'Group Stage', date:'Wed Jun 18', group:'J', home:'Austria', away:'Jordan', score:'3-1', time:'12:00 AM ET', venue:'San Francisco' },
+  { stage:'Group Stage', date:'Wed Jun 18', group:'K', home:'Portugal', away:'DR Congo', score:'1-1', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Group Stage', date:'Wed Jun 18', group:'L', home:'England', away:'Croatia', score:'4-2', time:'4:00 PM ET', venue:'Dallas' },
+  { stage:'Group Stage', date:'Wed Jun 18', group:'L', home:'Ghana', away:'Panama', score:'1-0', time:'7:00 PM ET', venue:'Toronto' },
+  { stage:'Group Stage', date:'Wed Jun 18', group:'K', home:'Uzbekistan', away:'Colombia', score:'1-3', time:'10:00 PM ET', venue:'Mexico City' },
+  // MD2
+  { stage:'Group Stage', date:'Thu Jun 19', group:'A', home:'Czechia', away:'South Africa', score:'1-1', time:'12:00 PM ET', venue:'Atlanta' },
+  { stage:'Group Stage', date:'Thu Jun 19', group:'B', home:'Switzerland', away:'Bosnia & Herz.', score:'4-1', time:'3:00 PM ET', venue:'Los Angeles' },
+  { stage:'Group Stage', date:'Thu Jun 19', group:'B', home:'Canada', away:'Qatar', score:'6-0', time:'6:00 PM ET', venue:'Vancouver' },
+  { stage:'Group Stage', date:'Thu Jun 19', group:'A', home:'Mexico', away:'South Korea', score:'1-0', time:'9:00 PM ET', venue:'Guadalajara' },
+  { stage:'Group Stage', date:'Fri Jun 20', group:'D', home:'Türkiye', away:'Paraguay', score:'0-1', time:'12:00 AM ET', venue:'San Francisco' },
+  { stage:'Group Stage', date:'Fri Jun 20', group:'D', home:'USA', away:'Australia', score:'2-0', time:'3:00 PM ET', venue:'Seattle' },
+  { stage:'Group Stage', date:'Fri Jun 20', group:'C', home:'Scotland', away:'Morocco', score:'0-1', time:'6:00 PM ET', venue:'Boston' },
+  { stage:'Group Stage', date:'Fri Jun 20', group:'C', home:'Brazil', away:'Haiti', score:'3-0', time:'8:30 PM ET', venue:'Philadelphia' },
+  { stage:'Group Stage', date:'Sat Jun 21', group:'F', home:'Netherlands', away:'Sweden', score:'5-1', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Group Stage', date:'Sat Jun 21', group:'E', home:'Germany', away:'Ivory Coast', score:'2-1', time:'4:00 PM ET', venue:'Toronto' },
+  { stage:'Group Stage', date:'Sat Jun 21', group:'E', home:'Ecuador', away:'Curaçao', score:'0-0', time:'8:00 PM ET', venue:'Kansas City' },
+  { stage:'Group Stage', date:'Sun Jun 22', group:'F', home:'Tunisia', away:'Japan ★', score:'0-4', time:'12:00 AM ET', venue:'Monterrey' },
+  { stage:'Group Stage', date:'Sun Jun 22', group:'H', home:'Spain', away:'Saudi Arabia', score:'4-0', time:'12:00 PM ET', venue:'Atlanta' },
+  { stage:'Group Stage', date:'Sun Jun 22', group:'G', home:'Belgium', away:'Iran', score:'0-0', time:'3:00 PM ET', venue:'Los Angeles' },
+  { stage:'Group Stage', date:'Sun Jun 22', group:'H', home:'Uruguay', away:'Cabo Verde', score:'2-2', time:'6:00 PM ET', venue:'Miami' },
+  { stage:'Group Stage', date:'Sun Jun 22', group:'G', home:'New Zealand', away:'Egypt', score:'—', time:'9:00 PM ET', venue:'Vancouver' },
+  { stage:'Group Stage', date:'Mon Jun 23', group:'J', home:'Argentina', away:'Austria', score:'—', time:'1:00 PM ET', venue:'Dallas' },
+  { stage:'Group Stage', date:'Mon Jun 23', group:'I', home:'France', away:'Iraq', score:'—', time:'5:00 PM ET', venue:'Philadelphia' },
+  { stage:'Group Stage', date:'Mon Jun 23', group:'I', home:'Norway', away:'Senegal', score:'—', time:'8:00 PM ET', venue:'New York/NJ' },
+  { stage:'Group Stage', date:'Mon Jun 23', group:'J', home:'Jordan', away:'Algeria', score:'—', time:'11:00 PM ET', venue:'San Francisco' },
+  { stage:'Group Stage', date:'Tue Jun 24', group:'K', home:'Portugal', away:'Uzbekistan', score:'—', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Group Stage', date:'Tue Jun 24', group:'L', home:'England', away:'Ghana', score:'—', time:'4:00 PM ET', venue:'Boston' },
+  { stage:'Group Stage', date:'Tue Jun 24', group:'L', home:'Panama', away:'Croatia', score:'—', time:'7:00 PM ET', venue:'Toronto' },
+  { stage:'Group Stage', date:'Tue Jun 24', group:'K', home:'Colombia', away:'DR Congo', score:'—', time:'10:00 PM ET', venue:'Guadalajara' },
+  // MD3
+  { stage:'Group Stage', date:'Wed Jun 25', group:'B', home:'Switzerland', away:'Canada', score:'—', time:'3:00 PM ET', venue:'Vancouver' },
+  { stage:'Group Stage', date:'Wed Jun 25', group:'B', home:'Bosnia & Herz.', away:'Qatar', score:'—', time:'3:00 PM ET', venue:'Seattle' },
+  { stage:'Group Stage', date:'Wed Jun 25', group:'C', home:'Scotland', away:'Brazil', score:'—', time:'6:00 PM ET', venue:'Miami' },
+  { stage:'Group Stage', date:'Wed Jun 25', group:'C', home:'Morocco', away:'Haiti', score:'—', time:'6:00 PM ET', venue:'Atlanta' },
+  { stage:'Group Stage', date:'Wed Jun 25', group:'A', home:'Czechia', away:'Mexico', score:'—', time:'9:00 PM ET', venue:'Mexico City' },
+  { stage:'Group Stage', date:'Wed Jun 25', group:'A', home:'South Africa', away:'South Korea', score:'—', time:'9:00 PM ET', venue:'Monterrey' },
+  { stage:'Group Stage', date:'Thu Jun 26', group:'E', home:'Curaçao', away:'Ivory Coast', score:'—', time:'4:00 PM ET', venue:'Philadelphia' },
+  { stage:'Group Stage', date:'Thu Jun 26', group:'E', home:'Ecuador', away:'Germany', score:'—', time:'4:00 PM ET', venue:'New York/NJ' },
+  { stage:'Group Stage', date:'Thu Jun 26', group:'F', home:'Japan', away:'Sweden', score:'—', time:'7:00 PM ET', venue:'Dallas' },
+  { stage:'Group Stage', date:'Thu Jun 26', group:'F', home:'Tunisia', away:'Netherlands', score:'—', time:'7:00 PM ET', venue:'Kansas City' },
+  { stage:'Group Stage', date:'Thu Jun 26', group:'D', home:'Türkiye', away:'USA', score:'—', time:'10:00 PM ET', venue:'Los Angeles' },
+  { stage:'Group Stage', date:'Thu Jun 26', group:'D', home:'Paraguay', away:'Australia', score:'—', time:'10:00 PM ET', venue:'San Francisco' },
+  { stage:'Group Stage', date:'Fri Jun 27', group:'I', home:'Norway', away:'France', score:'—', time:'3:00 PM ET', venue:'Boston' },
+  { stage:'Group Stage', date:'Fri Jun 27', group:'I', home:'Senegal', away:'Iraq', score:'—', time:'3:00 PM ET', venue:'Toronto' },
+  { stage:'Group Stage', date:'Fri Jun 27', group:'H', home:'Cabo Verde', away:'Saudi Arabia', score:'—', time:'8:00 PM ET', venue:'Houston' },
+  { stage:'Group Stage', date:'Fri Jun 27', group:'H', home:'Uruguay', away:'Spain', score:'—', time:'8:00 PM ET', venue:'Guadalajara' },
+  { stage:'Group Stage', date:'Fri Jun 27', group:'G', home:'Egypt', away:'Iran', score:'—', time:'11:00 PM ET', venue:'Seattle' },
+  { stage:'Group Stage', date:'Fri Jun 27', group:'G', home:'New Zealand', away:'Belgium', score:'—', time:'11:00 PM ET', venue:'Vancouver' },
+  { stage:'Group Stage', date:'Sat Jun 28', group:'L', home:'Panama', away:'England', score:'—', time:'5:00 PM ET', venue:'New York/NJ' },
+  { stage:'Group Stage', date:'Sat Jun 28', group:'L', home:'Croatia', away:'Ghana', score:'—', time:'5:00 PM ET', venue:'Philadelphia' },
+  { stage:'Group Stage', date:'Sat Jun 28', group:'K', home:'Colombia', away:'Portugal', score:'—', time:'7:30 PM ET', venue:'Miami' },
+  { stage:'Group Stage', date:'Sat Jun 28', group:'K', home:'DR Congo', away:'Uzbekistan', score:'—', time:'7:30 PM ET', venue:'Atlanta' },
+  { stage:'Group Stage', date:'Sat Jun 28', group:'J', home:'Algeria', away:'Austria', score:'—', time:'10:00 PM ET', venue:'Kansas City' },
+  { stage:'Group Stage', date:'Sat Jun 28', group:'J', home:'Jordan', away:'Argentina', score:'—', time:'10:00 PM ET', venue:'Dallas' },
+  // ROUND OF 32
+  { stage:'Round of 32', date:'Sun Jun 29', group:'R32', home:'2nd Group A', away:'2nd Group B', score:'—', time:'3:00 PM ET', venue:'Los Angeles' },
+  { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'1st Group C', away:'2nd Group F', score:'—', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'Germany / 1st E', away:'Best 3rd', score:'—', time:'4:30 PM ET', venue:'Boston' },
+  { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'1st Group F', away:'2nd Group C', score:'—', time:'9:00 PM ET', venue:'Monterrey' },
+  { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'2nd Group E', away:'2nd Group I', score:'—', time:'1:00 PM ET', venue:'Dallas' },
+  { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'1st Group I', away:'Best 3rd', score:'—', time:'5:00 PM ET', venue:'New York/NJ' },
+  { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'Mexico / 1st A', away:'Best 3rd', score:'—', time:'9:00 PM ET', venue:'Mexico City' },
+  { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'1st Group L', away:'Best 3rd', score:'—', time:'12:00 PM ET', venue:'Atlanta' },
+  { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'1st Group G', away:'Best 3rd', score:'—', time:'4:00 PM ET', venue:'Seattle' },
+  { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'USA / 1st D', away:'Best 3rd', score:'—', time:'8:00 PM ET', venue:'San Francisco' },
+  { stage:'Round of 32', date:'Thu Jul 3', group:'R32', home:'1st Group H', away:'2nd Group J', score:'—', time:'3:00 PM ET', venue:'Los Angeles' },
+  { stage:'Round of 32', date:'Thu Jul 3', group:'R32', home:'2nd Group K', away:'2nd Group L', score:'—', time:'7:00 PM ET', venue:'Toronto' },
+  { stage:'Round of 32', date:'Thu Jul 3', group:'R32', home:'1st Group B', away:'Best 3rd', score:'—', time:'11:00 PM ET', venue:'Vancouver' },
+  { stage:'Round of 32', date:'Fri Jul 4', group:'R32', home:'2nd Group D', away:'2nd Group G', score:'—', time:'2:00 PM ET', venue:'Dallas' },
+  { stage:'Round of 32', date:'Fri Jul 4', group:'R32', home:'1st Group J', away:'2nd Group H', score:'—', time:'6:00 PM ET', venue:'Miami' },
+  { stage:'Round of 32', date:'Fri Jul 4', group:'R32', home:'1st Group K', away:'Best 3rd', score:'—', time:'9:30 PM ET', venue:'Kansas City' },
+  // ROUND OF 16
+  { stage:'Round of 16', date:'Sat Jul 5', group:'R16', home:'Winner M73', away:'Winner M75', score:'—', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Round of 16', date:'Sat Jul 5', group:'R16', home:'Winner M74', away:'Winner M77', score:'—', time:'5:00 PM ET', venue:'Philadelphia' },
+  { stage:'Round of 16', date:'Sun Jul 6', group:'R16', home:'Winner M76', away:'Winner M78', score:'—', time:'4:00 PM ET', venue:'New York/NJ' },
+  { stage:'Round of 16', date:'Sun Jul 6', group:'R16', home:'Winner M79', away:'Winner M80', score:'—', time:'8:00 PM ET', venue:'Mexico City' },
+  { stage:'Round of 16', date:'Mon Jul 7', group:'R16', home:'Winner M83', away:'Winner M84', score:'—', time:'3:00 PM ET', venue:'Dallas' },
+  { stage:'Round of 16', date:'Mon Jul 7', group:'R16', home:'Winner M81', away:'Winner M82', score:'—', time:'8:00 PM ET', venue:'Seattle' },
+  { stage:'Round of 16', date:'Tue Jul 8', group:'R16', home:'Winner M86', away:'Winner M88', score:'—', time:'12:00 PM ET', venue:'Atlanta' },
+  { stage:'Round of 16', date:'Tue Jul 8', group:'R16', home:'Winner M85', away:'Winner M87', score:'—', time:'4:00 PM ET', venue:'Vancouver' },
+  // QUARTERFINALS
+  { stage:'Quarterfinals', date:'Thu Jul 9', group:'QF', home:'QF 1', away:'QF 2', score:'—', time:'4:00 PM ET', venue:'Boston', special:'quarter' },
+  { stage:'Quarterfinals', date:'Fri Jul 10', group:'QF', home:'QF 3', away:'QF 4', score:'—', time:'3:00 PM ET', venue:'Los Angeles', special:'quarter' },
+  { stage:'Quarterfinals', date:'Sat Jul 11', group:'QF', home:'QF 5', away:'QF 6', score:'—', time:'5:00 PM ET', venue:'Miami', special:'quarter' },
+  { stage:'Quarterfinals', date:'Sat Jul 11', group:'QF', home:'QF 7', away:'QF 8', score:'—', time:'9:00 PM ET', venue:'Kansas City', special:'quarter' },
+  // SEMIS
+  { stage:'Semifinals', date:'Tue Jul 14', group:'SF', home:'SF 1', away:'SF 2', score:'—', time:'3:00 PM ET', venue:'Dallas', special:'semi' },
+  { stage:'Semifinals', date:'Wed Jul 15', group:'SF', home:'SF 3', away:'SF 4', score:'—', time:'3:00 PM ET', venue:'Atlanta', special:'semi' },
+  // 3RD PLACE
+  { stage:'3rd Place', date:'Sat Jul 18', group:'3P', home:'3rd Place', away:'Match', score:'—', time:'5:00 PM ET', venue:'Miami' },
+  // FINAL
+  { stage:'Final', date:'Sun Jul 19', group:'FINAL', home:'World Cup', away:'Final', score:'—', time:'3:00 PM ET', venue:'New York/NJ', special:'final' },
+];
+
+// Venue key → map marker lookup
+const venueKeyMap = {
+  'Atlanta': 'Mercedes-Benz Stadium',
+  'Boston': 'Gillette Stadium',
+  'Dallas': 'AT&T Stadium',
+  'Houston': 'NRG Stadium',
+  'Kansas City': 'Arrowhead Stadium',
+  'Los Angeles': 'SoFi Stadium',
+  'Miami': 'Hard Rock Stadium',
+  'New York/NJ': 'MetLife Stadium',
+  'Philadelphia': 'Lincoln Financial Field',
+  'San Francisco': "Levi's Stadium",
+  'Seattle': 'Lumen Field',
+  'Toronto': 'BMO Field',
+  'Vancouver': 'BC Place',
+  'Mexico City': 'Estadio Azteca',
+  'Monterrey': 'Estadio BBVA',
+  'Guadalajara': 'Estadio Akron',
+};
+
+const venues = [
+  { name:'Mercedes-Benz Stadium', city:'Atlanta, GA', country:'usa', lat:33.7553, lng:-84.4006, cap:'75,000', opened:2017, tenant:'Atlanta United / Falcons', noteType:'semi', note:'Semi-Final', key:'Atlanta' },
+  { name:'Gillette Stadium', city:'Foxborough, MA', country:'usa', lat:42.0909, lng:-71.2644, cap:'65,000', opened:2002, tenant:'New England Patriots', noteType:null, note:null, key:'Boston' },
+  { name:'AT&T Stadium', city:'Arlington, TX', country:'usa', lat:32.7480, lng:-97.0928, cap:'94,000', opened:2009, tenant:'Dallas Cowboys', noteType:'semi', note:'Semi-Final · Most Matches (9)', key:'Dallas' },
+  { name:'NRG Stadium', city:'Houston, TX', country:'usa', lat:29.6847, lng:-95.4107, cap:'72,000', opened:2002, tenant:'Houston Texans', noteType:null, note:null, key:'Houston' },
+  { name:'Arrowhead Stadium', city:'Kansas City, MO', country:'usa', lat:39.0490, lng:-94.4840, cap:'76,000+', opened:1972, tenant:'Kansas City Chiefs', noteType:'quarter', note:'Quarter-Final', key:'Kansas City' },
+  { name:'SoFi Stadium', city:'Inglewood, CA', country:'usa', lat:33.9535, lng:-118.3390, cap:'70,000', opened:2020, tenant:'LA Rams / LA Chargers', noteType:'quarter', note:'Quarter-Final', key:'Los Angeles' },
+  { name:'Hard Rock Stadium', city:'Miami Gardens, FL', country:'usa', lat:25.9579, lng:-80.2389, cap:'65,000', opened:1987, tenant:'Miami Dolphins', noteType:null, note:'3rd Place Match', key:'Miami' },
+  { name:'MetLife Stadium', city:'East Rutherford, NJ', country:'usa', lat:40.8135, lng:-74.0745, cap:'82,500', opened:2010, tenant:'NY Giants / NY Jets', noteType:'final', note:'🏆 FINAL — July 19', key:'New York/NJ' },
+  { name:'Lincoln Financial Field', city:'Philadelphia, PA', country:'usa', lat:39.9014, lng:-75.1676, cap:'67,594', opened:2003, tenant:'Philadelphia Eagles', noteType:null, note:null, key:'Philadelphia' },
+  { name:"Levi's Stadium", city:'Santa Clara, CA', country:'usa', lat:37.4033, lng:-121.9694, cap:'68,500', opened:2014, tenant:'San Francisco 49ers', noteType:null, note:null, key:'San Francisco' },
+  { name:'Lumen Field', city:'Seattle, WA', country:'usa', lat:47.5952, lng:-122.3316, cap:'69,000', opened:2002, tenant:'Seattle Seahawks', noteType:null, note:null, key:'Seattle' },
+  { name:'BMO Field', city:'Toronto, ON', country:'canada', lat:43.6332, lng:-79.4186, cap:'45,736', opened:2007, tenant:'Toronto FC', noteType:null, note:null, key:'Toronto' },
+  { name:'BC Place', city:'Vancouver, BC', country:'canada', lat:49.2768, lng:-123.1120, cap:'54,000', opened:1983, tenant:'Vancouver Whitecaps', noteType:null, note:null, key:'Vancouver' },
+  { name:'Estadio Azteca', city:'Mexico City, MX', country:'mexico', lat:19.3029, lng:-99.1505, cap:'83,000', opened:1966, tenant:'Club América / Cruz Azul', noteType:'opening', note:'⚽ Opening Match', key:'Mexico City' },
+  { name:'Estadio BBVA', city:'Monterrey, MX', country:'mexico', lat:25.6692, lng:-100.2444, cap:'53,500', opened:2015, tenant:'CF Monterrey', noteType:null, note:null, key:'Monterrey' },
+  { name:'Estadio Akron', city:'Guadalajara, MX', country:'mexico', lat:20.6818, lng:-103.4626, cap:'49,800', opened:2010, tenant:'Chivas de Guadalajara', noteType:null, note:null, key:'Guadalajara' },
+];
+
+const countryColors = { usa:'#3a7bd5', mexico:'#2da44e', canada:'#d63b3b' };
+const markerRefs = {};
+
+// ── MAP INIT ─────────────────────────────────────────────────────────────────
+const map = L.map('map', { center:[35,-95], zoom:4 });
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19
+}).addTo(map);
+
+function makeIcon(country) {
+  const c = countryColors[country];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
+    <path d="M16 0C7.2 0 0 7.2 0 16c0 11 16 26 16 26S32 27 32 16C32 7.2 24.8 0 16 0z" fill="${c}" stroke="white" stroke-width="2"/>
+    <circle cx="16" cy="15" r="8" fill="white" opacity="0.2"/>
+    <text x="16" y="20" text-anchor="middle" font-size="12" font-family="Arial" fill="white">⚽</text>
+  </svg>`;
+  return L.divIcon({ html:svg, className:'', iconSize:[32,42], iconAnchor:[16,42], popupAnchor:[0,-44] });
+}
+
+venues.forEach(v => {
+  const vMatches = matches.filter(m => m.venue === v.key);
+  const matchesHtml = vMatches.length ? `
+    <div class="popup-matches-title">Matches at this venue (${vMatches.length})</div>
+    ${vMatches.map(m => `
+      <div class="popup-match">
+        <div>
+          <div style="font-size:11px;color:var(--text);font-weight:500">${m.home} vs ${m.away}</div>
+          <div class="pm-info">${m.date} · ${m.time} · ${m.stage}${m.group && !['R32','R16','QF','SF','3P','FINAL'].includes(m.group) ? ' Grp '+m.group : ''}</div>
+        </div>
+        <div class="pm-score">${m.score}</div>
+      </div>`).join('')}
+  ` : '<div style="font-size:11px;color:var(--muted);margin-top:8px">No confirmed matches yet.</div>';
+
+  const badgeHtml = v.note ? (() => {
+    const cls = v.noteType === 'final' ? 'badge-final' : v.noteType === 'semi' ? 'badge-semi' : v.noteType === 'quarter' ? 'badge-quarter' : '';
+    return cls ? `<span class="${cls}" style="margin-top:8px;display:inline-block">${v.note}</span>` : '';
+  })() : '';
+
+  const popup = `<div class="popup-inner">
+    <div class="popup-tag tag-${v.country}">${v.country==='usa'?'🇺🇸 United States':v.country==='mexico'?'🇲🇽 Mexico':'🇨🇦 Canada'}</div>
+    <div class="popup-name">${v.name}</div>
+    <div class="popup-city">${v.city}</div>
+    <hr class="popup-hr"/>
+    <div class="popup-row"><span class="prl">Capacity</span><span class="prv">${v.cap}</span></div>
+    <div class="popup-row"><span class="prl">Opened</span><span class="prv">${v.opened}</span></div>
+    <div class="popup-row"><span class="prl">Home Team</span><span class="prv">${v.tenant}</span></div>
+    ${badgeHtml}
+    <hr class="popup-hr"/>
+    ${matchesHtml}
+  </div>`;
+
+  const marker = L.marker([v.lat, v.lng], { icon: makeIcon(v.country) })
+    .addTo(map)
+    .bindPopup(popup, { maxWidth: 300, maxHeight: 420 });
+  markerRefs[v.key] = { marker, venue: v };
+});
+
+// ── SCHEDULE PANEL ────────────────────────────────────────────────────────────
+let activeTab = 'all';
+let searchQuery = '';
+
+function renderSchedule() {
+  const list = document.getElementById('schedule-list');
+  const q = searchQuery.toLowerCase();
+
+  let filtered = matches.filter(m => {
+    if (activeTab === 'group' && m.stage !== 'Group Stage') return false;
+    if (activeTab === 'knockout' && m.stage === 'Group Stage') return false;
+    if (q) {
+      const searchable = `${m.home} ${m.away} ${m.venue} ${m.stage} ${m.group}`.toLowerCase();
+      if (!searchable.includes(q)) return false;
     }
-  ];
-
-  const countryColors = { usa: '#3a7bd5', mexico: '#2da44e', canada: '#d63b3b' };
-
-  function makeIcon(country) {
-    const color = countryColors[country];
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
-        <path d="M16 0C7.2 0 0 7.2 0 16c0 11 16 24 16 24S32 27 32 16C32 7.2 24.8 0 16 0z"
-              fill="${color}" stroke="white" stroke-width="2"/>
-        <circle cx="16" cy="15" r="7" fill="white" opacity="0.25"/>
-        <text x="16" y="20" text-anchor="middle" font-size="11" font-family="Arial" font-weight="bold" fill="white">⚽</text>
-      </svg>`;
-    return L.divIcon({
-      html: svg,
-      className: '',
-      iconSize: [32, 40],
-      iconAnchor: [16, 40],
-      popupAnchor: [0, -42]
-    });
-  }
-
-  const map = L.map('map', {
-    center: [38, -95],
-    zoom: 4,
-    zoomControl: true
+    return true;
   });
 
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19
-  }).addTo(map);
+  // Group by stage
+  const byStage = {};
+  filtered.forEach(m => {
+    if (!byStage[m.stage]) byStage[m.stage] = [];
+    byStage[m.stage].push(m);
+  });
 
-  venues.forEach(v => {
-    const badgeHtml = v.note ? `
-      <span class="popup-badge badge-${v.noteType}">${v.note}</span>
-    ` : '';
+  const stageOrder = ['Group Stage','Round of 32','Round of 16','Quarterfinals','Semifinals','3rd Place','Final'];
+  let html = '';
 
-    const popup = `
-      <div class="popup-inner">
-        <div class="popup-country-tag tag-${v.country}">
-          ${v.country === 'usa' ? '🇺🇸 United States' : v.country === 'mexico' ? '🇲🇽 Mexico' : '🇨🇦 Canada'}
+  stageOrder.forEach(stage => {
+    if (!byStage[stage]) return;
+    html += `<div class="stage-header">${stage}</div>`;
+    byStage[stage].forEach((m, i) => {
+      const hasScore = m.score && m.score !== '—';
+      const scoreHtml = hasScore ? `<span class="mc-score">${m.score}</span>` : `<span style="font-size:10px;color:var(--muted)">${m.time}</span>`;
+      const grpLabel = !['R32','R16','QF','SF','3P','FINAL'].includes(m.group) ? `Group ${m.group} · ` : '';
+      const badgeHtml = m.special === 'final' ? `<span class="badge-final" style="margin-left:6px">FINAL</span>` :
+                        m.special === 'semi'  ? `<span class="badge-semi" style="margin-left:6px">SEMI</span>` :
+                        m.special === 'quarter' ? `<span class="badge-quarter" style="margin-left:6px">QF</span>` : '';
+
+      html += `<div class="match-card" data-venue="${m.venue}" onclick="focusVenue('${m.venue}')">
+        <div class="mc-date">${m.date} · ${grpLabel}${m.venue}${badgeHtml}</div>
+        <div class="mc-teams">
+          <span>${m.home} vs ${m.away}</span>
+          ${scoreHtml}
         </div>
-        <div class="popup-name">${v.name}</div>
-        <div class="popup-city">${v.city}</div>
-        <hr class="popup-divider" />
-        <div class="popup-meta">
-          <div class="popup-row">
-            <span class="popup-row-label">Capacity</span>
-            <span class="popup-row-value">${v.capacity}</span>
-          </div>
-          <div class="popup-row">
-            <span class="popup-row-label">Opened</span>
-            <span class="popup-row-value">${v.opened}</span>
-          </div>
-          <div class="popup-row">
-            <span class="popup-row-label">Home Team</span>
-            <span class="popup-row-value">${v.tenant}</span>
-          </div>
-        </div>
-        <hr class="popup-divider" />
-        <div style="font-size:11px;color:#8899aa;line-height:1.5;">${v.detail}</div>
-        ${badgeHtml}
       </div>`;
-
-    L.marker([v.lat, v.lng], { icon: makeIcon(v.country) })
-      .addTo(map)
-      .bindPopup(popup, { maxWidth: 280 });
+    });
   });
+
+  if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No matches found</div>';
+  list.innerHTML = html;
+}
+
+function focusVenue(venueKey) {
+  const ref = markerRefs[venueKey];
+  if (!ref) return;
+  map.setView([ref.venue.lat, ref.venue.lng], 8, { animate: true });
+  ref.marker.openPopup();
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeTab = tab.dataset.tab;
+    renderSchedule();
+  });
+});
+
+// Search
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderSchedule();
+});
+
+// Toggle panel
+const panel = document.getElementById('panel');
+document.getElementById('toggle-panel').addEventListener('click', () => {
+  panel.classList.toggle('collapsed');
+  setTimeout(() => map.invalidateSize(), 260);
+});
+
+renderSchedule();
 </script>
 </body>
 </html>
