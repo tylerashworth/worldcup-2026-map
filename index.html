@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FIFA World Cup 2026 — Venues & Schedule</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -13,46 +13,40 @@
       --blue: #0a1628; --gold: #c9a84c; --gold-l: #e8c96a;
       --usa: #3a7bd5; --mex: #2da44e; --can: #d63b3b;
       --surface: #111c2e; --surface2: #18263d; --border: rgba(201,168,76,0.18);
-      --text: #e8e8e8; --muted: #7a90a8;
-      --hdr-h: 51px; --stats-h: 42px; --top-h: 93px;
-      --panel-w: 340px;
+      --text: #e8e8e8; --muted: #7a90a8; --panel: 340px;
     }
     html, body { height: 100%; background: var(--blue); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
 
-    /* ── HEADER ── */
+    /* HEADER */
     header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1001;
-      background: var(--blue); border-bottom: 1px solid var(--border);
-      padding: 10px 16px; height: var(--hdr-h);
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      position: relative; z-index: 1001; background: var(--blue);
+      border-bottom: 1px solid var(--border);
+      padding: 11px 18px; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-wrap: wrap;
     }
-    .hdr-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .hdr-left h1 { font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 2px; color: var(--gold-l); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hdr-left p { font-size: 10px; color: var(--muted); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 1px; }
-    .legend { display: flex; gap: 12px; flex-shrink: 0; }
-    .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-weight: 500; white-space: nowrap; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .hdr-left { display: flex; align-items: center; gap: 12px; }
+    .hdr-left h1 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--gold-l); }
+    .hdr-left p { font-size: 10px; color: var(--muted); letter-spacing: 1.4px; text-transform: uppercase; margin-top: 1px; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; }
+    .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-weight: 500; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .d-usa { background: var(--usa); } .d-mex { background: var(--mex); } .d-can { background: var(--can); }
 
-    /* ── STATS ── */
-    .stats {
-      position: fixed; top: var(--hdr-h); left: 0; right: 0; z-index: 1000;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      display: flex; justify-content: center; height: var(--stats-h);
-    }
-    .stat { padding: 5px 18px; text-align: center; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+    /* STATS */
+    .stats { position: relative; z-index: 1000; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: center; }
+    .stat { padding: 8px 22px; text-align: center; border-right: 1px solid var(--border); }
     .stat:last-child { border-right: none; }
-    .sn { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); letter-spacing: 1px; line-height: 1; }
-    .sl { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; }
+    .sn { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold); letter-spacing: 1px; line-height: 1; }
+    .sl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; }
 
-    /* ── MAIN ── */
-    .main { display: flex; height: calc(100vh - var(--top-h)); margin-top: var(--top-h); position: relative; }
+    /* MAIN LAYOUT */
+    .main { display: flex; height: calc(100vh - 93px); }
 
-    /* ── DESKTOP PANEL ── */
+    /* SCHEDULE PANEL */
     #panel {
-      width: var(--panel-w); flex-shrink: 0; background: var(--surface);
+      width: var(--panel); flex-shrink: 0; background: var(--surface);
       border-right: 1px solid var(--border); display: flex; flex-direction: column;
-      overflow: hidden; transition: width 0.25s ease; z-index: 10;
+      overflow: hidden; transition: width 0.25s ease;
     }
     #panel.collapsed { width: 0; }
 
@@ -60,22 +54,26 @@
     .tab {
       flex: 1; padding: 9px 4px; font-size: 10px; font-weight: 600; text-align: center;
       letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted);
-      cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap;
+      cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+      white-space: nowrap;
     }
     .tab.active { color: var(--gold-l); border-bottom-color: var(--gold); }
     .tab:hover:not(.active) { color: var(--text); }
 
-    .panel-search { padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .panel-search {
+      padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
     .panel-search input {
       width: 100%; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 6px; padding: 7px 10px; color: var(--text); font-size: 13px;
+      border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 12px;
       font-family: inherit; outline: none;
     }
     .panel-search input::placeholder { color: var(--muted); }
     .panel-search input:focus { border-color: var(--gold); }
 
-    #schedule-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    #schedule-list { overflow-y: auto; flex: 1; }
     #schedule-list::-webkit-scrollbar { width: 4px; }
+    #schedule-list::-webkit-scrollbar-track { background: transparent; }
     #schedule-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     .stage-header {
@@ -84,89 +82,54 @@
       border-bottom: 1px solid var(--border); position: sticky; top: 0;
       background: var(--surface); z-index: 2;
     }
-    .match-card {
-      padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
-      cursor: pointer; transition: background 0.12s; -webkit-tap-highlight-color: transparent;
-    }
-    .match-card:hover, .match-card:active { background: var(--surface2); }
-    .mc-date { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
-    .mc-teams { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-    .mc-score { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--gold-l); letter-spacing: 1px; white-space: nowrap; }
 
-    .badge-final   { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; background:rgba(201,168,76,.15); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
+    .match-card {
+      padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer; transition: background 0.12s;
+    }
+    .match-card:hover { background: var(--surface2); }
+    .match-card.highlight { background: rgba(201,168,76,0.08); }
+
+    .mc-date { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+    .mc-teams {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; justify-content: space-between; gap: 4px;
+    }
+    .mc-score {
+      font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+      color: var(--gold-l); letter-spacing: 1px; white-space: nowrap;
+    }
+    .mc-venue { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .mc-group { font-size: 9px; color: var(--muted); font-weight: 600; letter-spacing: 0.8px; }
+
+    .badge-final   { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:.5px; background:rgba(201,168,76,.15); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
     .badge-semi    { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; background:rgba(58,123,213,.15); color:#6fa4f0; border:1px solid rgba(58,123,213,.3); }
     .badge-quarter { display:inline-block; padding:1px 6px; border-radius:10px; font-size:9px; font-weight:700; background:rgba(45,164,78,.15); color:#5dd67a; border:1px solid rgba(45,164,78,.3); }
 
-    /* ── MAP ── */
-    #map-wrap { flex: 1; position: relative; overflow: hidden; }
+    /* MAP */
+    #map-wrap { flex: 1; position: relative; }
     #map { width: 100%; height: 100%; }
 
-    /* ── TOGGLE BUTTON (desktop) ── */
+    /* TOGGLE BUTTON */
     #toggle-panel {
-      position: absolute; top: 86px; left: 10px; z-index: 500;
+      position: absolute; top: 86px; left: 10px; z-index: 1002;
       background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
       padding: 8px 12px; cursor: pointer; font-size: 12px; font-weight: 600;
       color: var(--gold-l); letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;
-      transition: background 0.15s; user-select: none; -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s; user-select: none;
     }
     #toggle-panel:hover { background: var(--surface2); }
 
-    /* ── MOBILE BOTTOM SHEET ── */
-    #sheet-backdrop {
-      display: none; position: fixed; inset: 0; z-index: 1100;
-      background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.25s;
-    }
-    #sheet-backdrop.visible { opacity: 1; }
-
-    #bottom-sheet {
-      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1200;
-      background: var(--surface); border-radius: 16px 16px 0 0;
-      border-top: 1px solid var(--border);
-      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
-      max-height: 80vh; flex-direction: column;
-    }
-    #bottom-sheet.open { transform: translateY(0); }
-
-    .sheet-handle-wrap {
-      padding: 10px 0 4px; display: flex; flex-direction: column; align-items: center;
-      flex-shrink: 0; cursor: grab;
-    }
-    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; }
-    .sheet-title {
-      font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px;
-      color: var(--gold-l); text-align: center; padding: 2px 0 8px;
-    }
-    #sheet-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-    #sheet-list::-webkit-scrollbar { display: none; }
-    .sheet-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sheet-search { padding: 10px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sheet-search input {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 8px; padding: 9px 12px; color: var(--text); font-size: 15px;
-      font-family: inherit; outline: none;
-    }
-    .sheet-search input:focus { border-color: var(--gold); }
-
-    /* ── MOBILE FAB ── */
-    #fab {
-      display: none; position: fixed; bottom: 24px; right: 20px; z-index: 1050;
-      background: var(--gold); color: var(--blue); border: none; border-radius: 50px;
-      padding: 13px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 16px;
-      letter-spacing: 1.5px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      display: flex; align-items: center; gap: 8px;
-      -webkit-tap-highlight-color: transparent; user-select: none;
-    }
-    #fab svg { width: 18px; height: 18px; }
-
-    /* ── POPUP ── */
+    /* POPUP */
     .leaflet-popup-content-wrapper {
       background: var(--surface) !important; border: 1px solid var(--border) !important;
       border-radius: 10px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important; padding: 0 !important;
     }
-    .leaflet-popup-content { margin: 0 !important; min-width: 240px !important; }
+    .leaflet-popup-content { margin: 0 !important; min-width: 260px !important; }
     .leaflet-popup-tip { background: var(--surface) !important; }
-    .leaflet-popup-close-button { color: var(--muted) !important; font-size: 20px !important; top: 8px !important; right: 10px !important; }
-    .popup-inner { padding: 14px; max-height: 50vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .leaflet-popup-close-button { color: var(--muted) !important; font-size: 18px !important; top: 8px !important; right: 10px !important; }
+
+    .popup-inner { padding: 14px; }
     .popup-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 5px; }
     .tag-usa { color: var(--usa); } .tag-mexico { color: var(--mex); } .tag-canada { color: var(--can); }
     .popup-name { font-family: 'Bebas Neue', sans-serif; font-size: 19px; color: var(--gold-l); letter-spacing: 1px; line-height: 1.1; }
@@ -180,31 +143,9 @@
     .pm-info { color: var(--muted); font-size: 10px; }
     .pm-score { font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: var(--gold-l); white-space: nowrap; }
 
-    /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
-      :root { --hdr-h: 48px; --stats-h: 0px; --top-h: 48px; }
-
-      /* hide desktop elements */
-      #panel, .stats, .legend, .hdr-left p, #toggle-panel { display: none !important; }
-
-      /* compact header */
-      header { padding: 8px 14px; }
-      .hdr-left h1 { font-size: 15px; letter-spacing: 1.5px; }
-
-      /* show mobile elements */
-      #fab { display: flex; }
-      #bottom-sheet { display: flex; }
-      #sheet-backdrop { display: block; }
-
-      /* map goes full height */
-      .main { margin-top: var(--top-h); height: calc(100vh - var(--top-h)); }
-
-      /* popup max width on mobile */
-      .leaflet-popup-content { min-width: 200px !important; max-width: calc(100vw - 48px) !important; }
-    }
-
-    @media (min-width: 701px) {
-      #fab, #bottom-sheet, #sheet-backdrop { display: none !important; }
+      :root { --panel: 280px; }
+      .stats .stat:nth-child(n+4) { display: none; }
     }
   </style>
 </head>
@@ -233,7 +174,6 @@
 </div>
 
 <div class="main">
-  <!-- DESKTOP PANEL -->
   <div id="panel">
     <div class="panel-tabs">
       <div class="tab active" data-tab="all">All Matches</div>
@@ -246,41 +186,14 @@
     <div id="schedule-list"></div>
   </div>
 
-  <!-- MAP -->
   <div id="map-wrap">
     <div id="toggle-panel">☰ Schedule</div>
     <div id="map"></div>
   </div>
 </div>
 
-<!-- MOBILE FAB -->
-<button id="fab" aria-label="Open schedule">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/>
-  </svg>
-  Schedule
-</button>
-
-<!-- MOBILE BOTTOM SHEET -->
-<div id="sheet-backdrop"></div>
-<div id="bottom-sheet" role="dialog" aria-label="Match schedule">
-  <div class="sheet-handle-wrap" id="sheet-drag-handle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Match Schedule</div>
-  </div>
-  <div class="sheet-tabs panel-tabs">
-    <div class="tab active" data-stab="all">All</div>
-    <div class="tab" data-stab="group">Group Stage</div>
-    <div class="tab" data-stab="knockout">Knockouts</div>
-  </div>
-  <div class="sheet-search panel-search">
-    <input type="text" id="sheet-search-input" placeholder="Search team or venue…" />
-  </div>
-  <div id="sheet-list"></div>
-</div>
-
 <script>
-// ── DATA ─────────────────────────────────────────────────────────────────────
+// ── SCHEDULE DATA ────────────────────────────────────────────────────────────
 const matches = [
   // GROUP STAGE — MD1
   { stage:'Group Stage', date:'Thu Jun 12', group:'A', home:'Mexico', away:'South Africa', score:'2-0', time:'3:00 PM ET', venue:'Mexico City' },
@@ -360,14 +273,14 @@ const matches = [
   // ROUND OF 32
   { stage:'Round of 32', date:'Sun Jun 29', group:'R32', home:'2nd Group A', away:'2nd Group B', score:'—', time:'3:00 PM ET', venue:'Los Angeles' },
   { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'1st Group C', away:'2nd Group F', score:'—', time:'1:00 PM ET', venue:'Houston' },
-  { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'1st Group E', away:'Best 3rd', score:'—', time:'4:30 PM ET', venue:'Boston' },
+  { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'Germany / 1st E', away:'Best 3rd', score:'—', time:'4:30 PM ET', venue:'Boston' },
   { stage:'Round of 32', date:'Mon Jun 30', group:'R32', home:'1st Group F', away:'2nd Group C', score:'—', time:'9:00 PM ET', venue:'Monterrey' },
   { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'2nd Group E', away:'2nd Group I', score:'—', time:'1:00 PM ET', venue:'Dallas' },
   { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'1st Group I', away:'Best 3rd', score:'—', time:'5:00 PM ET', venue:'New York/NJ' },
-  { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'1st Group A', away:'Best 3rd', score:'—', time:'9:00 PM ET', venue:'Mexico City' },
+  { stage:'Round of 32', date:'Tue Jul 1', group:'R32', home:'Mexico / 1st A', away:'Best 3rd', score:'—', time:'9:00 PM ET', venue:'Mexico City' },
   { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'1st Group L', away:'Best 3rd', score:'—', time:'12:00 PM ET', venue:'Atlanta' },
   { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'1st Group G', away:'Best 3rd', score:'—', time:'4:00 PM ET', venue:'Seattle' },
-  { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'1st Group D', away:'Best 3rd', score:'—', time:'8:00 PM ET', venue:'San Francisco' },
+  { stage:'Round of 32', date:'Wed Jul 2', group:'R32', home:'USA / 1st D', away:'Best 3rd', score:'—', time:'8:00 PM ET', venue:'San Francisco' },
   { stage:'Round of 32', date:'Thu Jul 3', group:'R32', home:'1st Group H', away:'2nd Group J', score:'—', time:'3:00 PM ET', venue:'Los Angeles' },
   { stage:'Round of 32', date:'Thu Jul 3', group:'R32', home:'2nd Group K', away:'2nd Group L', score:'—', time:'7:00 PM ET', venue:'Toronto' },
   { stage:'Round of 32', date:'Thu Jul 3', group:'R32', home:'1st Group B', away:'Best 3rd', score:'—', time:'11:00 PM ET', venue:'Vancouver' },
@@ -375,14 +288,14 @@ const matches = [
   { stage:'Round of 32', date:'Fri Jul 4', group:'R32', home:'1st Group J', away:'2nd Group H', score:'—', time:'6:00 PM ET', venue:'Miami' },
   { stage:'Round of 32', date:'Fri Jul 4', group:'R32', home:'1st Group K', away:'Best 3rd', score:'—', time:'9:30 PM ET', venue:'Kansas City' },
   // ROUND OF 16
-  { stage:'Round of 16', date:'Sat Jul 5', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'1:00 PM ET', venue:'Houston' },
-  { stage:'Round of 16', date:'Sat Jul 5', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'5:00 PM ET', venue:'Philadelphia' },
-  { stage:'Round of 16', date:'Sun Jul 6', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'4:00 PM ET', venue:'New York/NJ' },
-  { stage:'Round of 16', date:'Sun Jul 6', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'8:00 PM ET', venue:'Mexico City' },
-  { stage:'Round of 16', date:'Mon Jul 7', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'3:00 PM ET', venue:'Dallas' },
-  { stage:'Round of 16', date:'Mon Jul 7', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'8:00 PM ET', venue:'Seattle' },
-  { stage:'Round of 16', date:'Tue Jul 8', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'12:00 PM ET', venue:'Atlanta' },
-  { stage:'Round of 16', date:'Tue Jul 8', group:'R16', home:'R32 Winner', away:'R32 Winner', score:'—', time:'4:00 PM ET', venue:'Vancouver' },
+  { stage:'Round of 16', date:'Sat Jul 5', group:'R16', home:'Winner M73', away:'Winner M75', score:'—', time:'1:00 PM ET', venue:'Houston' },
+  { stage:'Round of 16', date:'Sat Jul 5', group:'R16', home:'Winner M74', away:'Winner M77', score:'—', time:'5:00 PM ET', venue:'Philadelphia' },
+  { stage:'Round of 16', date:'Sun Jul 6', group:'R16', home:'Winner M76', away:'Winner M78', score:'—', time:'4:00 PM ET', venue:'New York/NJ' },
+  { stage:'Round of 16', date:'Sun Jul 6', group:'R16', home:'Winner M79', away:'Winner M80', score:'—', time:'8:00 PM ET', venue:'Mexico City' },
+  { stage:'Round of 16', date:'Mon Jul 7', group:'R16', home:'Winner M83', away:'Winner M84', score:'—', time:'3:00 PM ET', venue:'Dallas' },
+  { stage:'Round of 16', date:'Mon Jul 7', group:'R16', home:'Winner M81', away:'Winner M82', score:'—', time:'8:00 PM ET', venue:'Seattle' },
+  { stage:'Round of 16', date:'Tue Jul 8', group:'R16', home:'Winner M86', away:'Winner M88', score:'—', time:'12:00 PM ET', venue:'Atlanta' },
+  { stage:'Round of 16', date:'Tue Jul 8', group:'R16', home:'Winner M85', away:'Winner M87', score:'—', time:'4:00 PM ET', venue:'Vancouver' },
   // QUARTERFINALS
   { stage:'Quarterfinals', date:'Thu Jul 9', group:'QF', home:'QF 1', away:'QF 2', score:'—', time:'4:00 PM ET', venue:'Boston', special:'quarter' },
   { stage:'Quarterfinals', date:'Fri Jul 10', group:'QF', home:'QF 3', away:'QF 4', score:'—', time:'3:00 PM ET', venue:'Los Angeles', special:'quarter' },
@@ -392,10 +305,30 @@ const matches = [
   { stage:'Semifinals', date:'Tue Jul 14', group:'SF', home:'SF 1', away:'SF 2', score:'—', time:'3:00 PM ET', venue:'Dallas', special:'semi' },
   { stage:'Semifinals', date:'Wed Jul 15', group:'SF', home:'SF 3', away:'SF 4', score:'—', time:'3:00 PM ET', venue:'Atlanta', special:'semi' },
   // 3RD PLACE
-  { stage:'3rd Place', date:'Sat Jul 18', group:'3P', home:'3rd Place Match', away:'', score:'—', time:'5:00 PM ET', venue:'Miami' },
+  { stage:'3rd Place', date:'Sat Jul 18', group:'3P', home:'3rd Place', away:'Match', score:'—', time:'5:00 PM ET', venue:'Miami' },
   // FINAL
-  { stage:'Final', date:'Sun Jul 19', group:'FINAL', home:'World Cup Final', away:'', score:'—', time:'3:00 PM ET', venue:'New York/NJ', special:'final' },
+  { stage:'Final', date:'Sun Jul 19', group:'FINAL', home:'World Cup', away:'Final', score:'—', time:'3:00 PM ET', venue:'New York/NJ', special:'final' },
 ];
+
+// Venue key → map marker lookup
+const venueKeyMap = {
+  'Atlanta': 'Mercedes-Benz Stadium',
+  'Boston': 'Gillette Stadium',
+  'Dallas': 'AT&T Stadium',
+  'Houston': 'NRG Stadium',
+  'Kansas City': 'Arrowhead Stadium',
+  'Los Angeles': 'SoFi Stadium',
+  'Miami': 'Hard Rock Stadium',
+  'New York/NJ': 'MetLife Stadium',
+  'Philadelphia': 'Lincoln Financial Field',
+  'San Francisco': "Levi's Stadium",
+  'Seattle': 'Lumen Field',
+  'Toronto': 'BMO Field',
+  'Vancouver': 'BC Place',
+  'Mexico City': 'Estadio Azteca',
+  'Monterrey': 'Estadio BBVA',
+  'Guadalajara': 'Estadio Akron',
+};
 
 const venues = [
   { name:'Mercedes-Benz Stadium', city:'Atlanta, GA', country:'usa', lat:33.7553, lng:-84.4006, cap:'75,000', opened:2017, tenant:'Atlanta United / Falcons', noteType:'semi', note:'Semi-Final', key:'Atlanta' },
@@ -418,10 +351,9 @@ const venues = [
 
 const countryColors = { usa:'#3a7bd5', mexico:'#2da44e', canada:'#d63b3b' };
 const markerRefs = {};
-const isMobile = () => window.innerWidth <= 700;
 
-// ── MAP ───────────────────────────────────────────────────────────────────────
-const map = L.map('map', { center:[35,-95], zoom: isMobile() ? 3 : 4 });
+// ── MAP INIT ─────────────────────────────────────────────────────────────────
+const map = L.map('map', { center:[35,-95], zoom:4 });
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   maxZoom:19
@@ -444,16 +376,16 @@ venues.forEach(v => {
     ${vMatches.map(m => `
       <div class="popup-match">
         <div>
-          <div style="font-size:11px;color:var(--text);font-weight:500">${m.home}${m.away ? ' vs ' + m.away : ''}</div>
-          <div class="pm-info">${m.date} · ${m.time}${!['R32','R16','QF','SF','3P','FINAL'].includes(m.group) ? ' · Grp '+m.group : ''}</div>
+          <div style="font-size:11px;color:var(--text);font-weight:500">${m.home} vs ${m.away}</div>
+          <div class="pm-info">${m.date} · ${m.time} · ${m.stage}${m.group && !['R32','R16','QF','SF','3P','FINAL'].includes(m.group) ? ' Grp '+m.group : ''}</div>
         </div>
         <div class="pm-score">${m.score}</div>
       </div>`).join('')}
-  ` : '';
+  ` : '<div style="font-size:11px;color:var(--muted);margin-top:8px">No confirmed matches yet.</div>';
 
   const badgeHtml = v.note ? (() => {
-    const cls = v.noteType==='final' ? 'badge-final' : v.noteType==='semi' ? 'badge-semi' : v.noteType==='quarter' ? 'badge-quarter' : '';
-    return cls ? `<span class="${cls}" style="margin-top:8px;display:inline-block">${v.note}</span>` : `<div style="font-size:11px;color:var(--muted);margin-top:4px">${v.note}</div>`;
+    const cls = v.noteType === 'final' ? 'badge-final' : v.noteType === 'semi' ? 'badge-semi' : v.noteType === 'quarter' ? 'badge-quarter' : '';
+    return cls ? `<span class="${cls}" style="margin-top:8px;display:inline-block">${v.note}</span>` : '';
   })() : '';
 
   const popup = `<div class="popup-inner">
@@ -471,133 +403,94 @@ venues.forEach(v => {
 
   const marker = L.marker([v.lat, v.lng], { icon: makeIcon(v.country) })
     .addTo(map)
-    .bindPopup(popup, { maxWidth: 300, maxHeight: 440 });
+    .bindPopup(popup, { maxWidth: 300, maxHeight: 420 });
   markerRefs[v.key] = { marker, venue: v };
 });
 
-// ── SCHEDULE RENDERING ────────────────────────────────────────────────────────
+// ── SCHEDULE PANEL ────────────────────────────────────────────────────────────
 let activeTab = 'all';
-let activeSheetTab = 'all';
 let searchQuery = '';
-let sheetSearchQuery = '';
 
-function buildMatchesHtml(tab, query, onClickClose) {
-  const q = query.toLowerCase();
-  const filtered = matches.filter(m => {
-    if (tab === 'group' && m.stage !== 'Group Stage') return false;
-    if (tab === 'knockout' && m.stage === 'Group Stage') return false;
+function renderSchedule() {
+  const list = document.getElementById('schedule-list');
+  const q = searchQuery.toLowerCase();
+
+  let filtered = matches.filter(m => {
+    if (activeTab === 'group' && m.stage !== 'Group Stage') return false;
+    if (activeTab === 'knockout' && m.stage === 'Group Stage') return false;
     if (q) {
-      const s = `${m.home} ${m.away} ${m.venue} ${m.stage} ${m.group}`.toLowerCase();
-      if (!s.includes(q)) return false;
+      const searchable = `${m.home} ${m.away} ${m.venue} ${m.stage} ${m.group}`.toLowerCase();
+      if (!searchable.includes(q)) return false;
     }
     return true;
   });
+
+  // Group by stage
   const byStage = {};
-  filtered.forEach(m => { if (!byStage[m.stage]) byStage[m.stage]=[]; byStage[m.stage].push(m); });
+  filtered.forEach(m => {
+    if (!byStage[m.stage]) byStage[m.stage] = [];
+    byStage[m.stage].push(m);
+  });
+
   const stageOrder = ['Group Stage','Round of 32','Round of 16','Quarterfinals','Semifinals','3rd Place','Final'];
   let html = '';
+
   stageOrder.forEach(stage => {
     if (!byStage[stage]) return;
     html += `<div class="stage-header">${stage}</div>`;
-    byStage[stage].forEach(m => {
+    byStage[stage].forEach((m, i) => {
       const hasScore = m.score && m.score !== '—';
-      const scoreHtml = hasScore
-        ? `<span class="mc-score">${m.score}</span>`
-        : `<span style="font-size:10px;color:var(--muted)">${m.time}</span>`;
+      const scoreHtml = hasScore ? `<span class="mc-score">${m.score}</span>` : `<span style="font-size:10px;color:var(--muted)">${m.time}</span>`;
       const grpLabel = !['R32','R16','QF','SF','3P','FINAL'].includes(m.group) ? `Group ${m.group} · ` : '';
-      const badgeHtml = m.special==='final' ? `<span class="badge-final" style="margin-left:6px">FINAL</span>`
-                      : m.special==='semi'   ? `<span class="badge-semi" style="margin-left:6px">SEMI</span>`
-                      : m.special==='quarter'? `<span class="badge-quarter" style="margin-left:6px">QF</span>` : '';
-      const closeAttr = onClickClose ? 'data-close="1"' : '';
-      html += `<div class="match-card" ${closeAttr} data-venue="${m.venue}" onclick="focusVenue('${m.venue}',${onClickClose})">
+      const badgeHtml = m.special === 'final' ? `<span class="badge-final" style="margin-left:6px">FINAL</span>` :
+                        m.special === 'semi'  ? `<span class="badge-semi" style="margin-left:6px">SEMI</span>` :
+                        m.special === 'quarter' ? `<span class="badge-quarter" style="margin-left:6px">QF</span>` : '';
+
+      html += `<div class="match-card" data-venue="${m.venue}" onclick="focusVenue('${m.venue}')">
         <div class="mc-date">${m.date} · ${grpLabel}${m.venue}${badgeHtml}</div>
         <div class="mc-teams">
-          <span>${m.home}${m.away ? ' vs ' + m.away : ''}</span>
+          <span>${m.home} vs ${m.away}</span>
           ${scoreHtml}
         </div>
       </div>`;
     });
   });
-  return html || '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No matches found</div>';
+
+  if (!html) html = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No matches found</div>';
+  list.innerHTML = html;
 }
 
-function renderDesktop() {
-  document.getElementById('schedule-list').innerHTML = buildMatchesHtml(activeTab, searchQuery, false);
-}
-function renderSheet() {
-  document.getElementById('sheet-list').innerHTML = buildMatchesHtml(activeSheetTab, sheetSearchQuery, true);
-}
-
-function focusVenue(venueKey, closeSheet) {
+function focusVenue(venueKey) {
   const ref = markerRefs[venueKey];
   if (!ref) return;
-  if (closeSheet) closeBottomSheet();
-  const zoom = isMobile() ? 7 : 8;
-  map.setView([ref.venue.lat, ref.venue.lng], zoom, { animate: true });
-  setTimeout(() => ref.marker.openPopup(), closeSheet ? 320 : 0);
+  map.setView([ref.venue.lat, ref.venue.lng], 8, { animate: true });
+  ref.marker.openPopup();
 }
 
-// ── DESKTOP CONTROLS ──────────────────────────────────────────────────────────
-document.querySelectorAll('#panel .tab').forEach(tab => {
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('#panel .tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     activeTab = tab.dataset.tab;
-    renderDesktop();
+    renderSchedule();
   });
 });
+
+// Search
 document.getElementById('search-input').addEventListener('input', e => {
   searchQuery = e.target.value;
-  renderDesktop();
+  renderSchedule();
 });
+
+// Toggle panel
 const panel = document.getElementById('panel');
 document.getElementById('toggle-panel').addEventListener('click', () => {
   panel.classList.toggle('collapsed');
   setTimeout(() => map.invalidateSize(), 260);
 });
 
-// ── BOTTOM SHEET ──────────────────────────────────────────────────────────────
-const sheet = document.getElementById('bottom-sheet');
-const backdrop = document.getElementById('sheet-backdrop');
-const fab = document.getElementById('fab');
-
-function openBottomSheet() {
-  sheet.classList.add('open');
-  backdrop.classList.add('visible');
-  renderSheet();
-}
-function closeBottomSheet() {
-  sheet.classList.remove('open');
-  backdrop.classList.remove('visible');
-}
-
-fab.addEventListener('click', openBottomSheet);
-backdrop.addEventListener('click', closeBottomSheet);
-
-document.querySelectorAll('#bottom-sheet .tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('#bottom-sheet .tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeSheetTab = tab.dataset.stab;
-    renderSheet();
-  });
-});
-document.getElementById('sheet-search-input').addEventListener('input', e => {
-  sheetSearchQuery = e.target.value;
-  renderSheet();
-});
-
-// drag-to-dismiss on bottom sheet handle
-let dragStart = null;
-const handle = document.getElementById('sheet-drag-handle');
-handle.addEventListener('touchstart', e => { dragStart = e.touches[0].clientY; }, { passive: true });
-handle.addEventListener('touchend', e => {
-  if (dragStart !== null && e.changedTouches[0].clientY - dragStart > 60) closeBottomSheet();
-  dragStart = null;
-});
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-renderDesktop();
+renderSchedule();
 </script>
 </body>
 </html>
