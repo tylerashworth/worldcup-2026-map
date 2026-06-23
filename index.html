@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIFA World Cup 2026 — Venues</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fifa-blue: #0a1628;
+      --fifa-gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --usa: #3a7bd5;
+      --mexico: #2da44e;
+      --canada: #d63b3b;
+      --surface: #111c2e;
+      --border: rgba(201,168,76,0.2);
+      --text: #e8e8e8;
+      --muted: #8899aa;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--fifa-blue);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 1000;
+      background: var(--fifa-blue);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .trophy {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .title-block h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+
+    .title-block p {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-usa    { background: var(--usa); }
+    .dot-mexico { background: var(--mexico); }
+    .dot-canada { background: var(--canada); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      position: relative;
+      z-index: 999;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .stat {
+      padding: 10px 28px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+
+    .stat-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--fifa-gold);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    /* ── MAP ── */
+    #map {
+      width: 100%;
+      height: calc(100vh - 105px);
+    }
+
+    /* ── POPUP STYLES ── */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 10px !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+      padding: 0 !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+      min-width: 240px !important;
+    }
+
+    .leaflet-popup-tip {
+      background: var(--surface) !important;
+    }
+
+    .leaflet-popup-close-button {
+      color: var(--muted) !important;
+      font-size: 18px !important;
+      top: 8px !important;
+      right: 10px !important;
+    }
+
+    .popup-inner {
+      padding: 16px;
+    }
+
+    .popup-country-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .tag-usa    { color: var(--usa); }
+    .tag-mexico { color: var(--mexico); }
+    .tag-canada { color: var(--canada); }
+
+    .popup-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      color: var(--gold-light);
+      letter-spacing: 1px;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .popup-city {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .popup-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 10px 0;
+    }
+
+    .popup-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .popup-row-label { color: var(--muted); }
+    .popup-row-value { color: var(--text); font-weight: 500; }
+
+    .popup-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .badge-final     { background: rgba(201,168,76,0.15); color: var(--fifa-gold); border: 1px solid rgba(201,168,76,0.4); }
+    .badge-semi      { background: rgba(58,123,213,0.15); color: #6fa4f0; border: 1px solid rgba(58,123,213,0.4); }
+    .badge-quarter   { background: rgba(45,164,78,0.15); color: #5dd67a; border: 1px solid rgba(45,164,78,0.4); }
+    .badge-opening   { background: rgba(214,59,59,0.15); color: #f07070; border: 1px solid rgba(214,59,59,0.4); }
+
+    /* Custom marker */
+    .venue-marker {
+      width: 28px;
+      height: 28px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+      transition: transform 0.15s ease;
+    }
+
+    .venue-marker.usa    { background: var(--usa); }
+    .venue-marker.mexico { background: var(--mexico); }
+    .venue-marker.canada { background: var(--canada); }
+
+    .venue-marker-inner {
+      transform: rotate(45deg);
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-bar { display: none; }
+      #map { height: calc(100vh - 66px); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="trophy">🏆</div>
+    <div class="title-block">
+      <h1>FIFA World Cup 2026 — All 16 Venues</h1>
+      <p>Canada · Mexico · United States &nbsp;|&nbsp; June 11 – July 19, 2026</p>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="dot dot-usa"></span>United States (11)</div>
+    <div class="legend-item"><span class="dot dot-mexico"></span>Mexico (3)</div>
+    <div class="legend-item"><span class="dot dot-canada"></span>Canada (2)</div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-number">16</div><div class="stat-label">Venues</div></div>
+  <div class="stat"><div class="stat-number">3</div><div class="stat-label">Nations</div></div>
+  <div class="stat"><div class="stat-number">48</div><div class="stat-label">Teams</div></div>
+  <div class="stat"><div class="stat-number">104</div><div class="stat-label">Matches</div></div>
+  <div class="stat"><div class="stat-number">Jul 19</div><div class="stat-label">Final Date</div></div>
+</div>
+
+<div id="map"></div>
+
+<script>
+  const venues = [
+    {
+      name: "Mercedes-Benz Stadium",
+      city: "Atlanta, Georgia",
+      country: "usa",
+      lat: 33.7553, lng: -84.4006,
+      capacity: "75,000",
+      opened: 2017,
+      tenant: "Atlanta United / Falcons",
+      note: "Semi-Final",
+      noteType: "semi",
+      detail: "Retractable roof with full A/C. Hosted FIFA Club World Cup 2025."
+    },
+    {
+      name: "Gillette Stadium",
+      city: "Foxborough, Massachusetts",
+      country: "usa",
+      lat: 42.0909, lng: -71.2644,
+      capacity: "65,000",
+      opened: 2002,
+      tenant: "New England Patriots / Revolution",
+      note: null,
+      detail: "Newly renovated with the largest outdoor HD video board in the US."
+    },
+    {
+      name: "AT&T Stadium",
+      city: "Arlington, Texas",
+      country: "usa",
+      lat: 32.7480, lng: -97.0928,
+      capacity: "94,000",
+      opened: 2009,
+      tenant: "Dallas Cowboys",
+      note: "Semi-Final",
+      noteType: "semi",
+      detail: "Largest NFL stadium. Retractable roof with full A/C. Known as 'The Death Star.'"
+    },
+    {
+      name: "NRG Stadium",
+      city: "Houston, Texas",
+      country: "usa",
+      lat: 29.6847, lng: -95.4107,
+      capacity: "72,000",
+      opened: 2002,
+      tenant: "Houston Texans",
+      note: null,
+      detail: "Retractable roof with climate control."
+    },
+    {
+      name: "Arrowhead Stadium",
+      city: "Kansas City, Missouri",
+      country: "usa",
+      lat: 39.0490, lng: -94.4840,
+      capacity: "76,000+",
+      opened: 1972,
+      tenant: "Kansas City Chiefs",
+      note: "Quarter-Final",
+      noteType: "quarter",
+      detail: "Guinness record holder for loudest crowd roar at a sports stadium."
+    },
+    {
+      name: "SoFi Stadium",
+      city: "Inglewood, California",
+      country: "usa",
+      lat: 33.9535, lng: -118.3390,
+      capacity: "70,000",
+      opened: 2020,
+      tenant: "LA Rams / LA Chargers",
+      note: "Quarter-Final",
+      noteType: "quarter",
+      detail: "Newest stadium in the tournament. Future host of LA 2028 Olympics opening & closing ceremonies."
+    },
+    {
+      name: "Hard Rock Stadium",
+      city: "Miami Gardens, Florida",
+      country: "usa",
+      lat: 25.9579, lng: -80.2389,
+      capacity: "65,000",
+      opened: 1987,
+      tenant: "Miami Dolphins",
+      note: null,
+      detail: "Also hosts F1 Miami Grand Prix and the Miami Open tennis tournament."
+    },
+    {
+      name: "MetLife Stadium",
+      city: "East Rutherford, New Jersey",
+      country: "usa",
+      lat: 40.8135, lng: -74.0745,
+      capacity: "82,500",
+      opened: 2010,
+      tenant: "NY Giants / NY Jets",
+      note: "🏆 FINAL",
+      noteType: "final",
+      detail: "Host of the July 19 World Cup Final. Hosted Copa America Centenario final in 2016."
+    },
+    {
+      name: "Lincoln Financial Field",
+      city: "Philadelphia, Pennsylvania",
+      country: "usa",
+      lat: 39.9014, lng: -75.1676,
+      capacity: "67,594",
+      opened: 2003,
+      tenant: "Philadelphia Eagles",
+      note: null,
+      detail: "Home of the Eagles, one of the NFL's most passionate fanbases."
+    },
+    {
+      name: "Levi's Stadium",
+      city: "Santa Clara, California",
+      country: "usa",
+      lat: 37.4033, lng: -121.9694,
+      capacity: "68,500",
+      opened: 2014,
+      tenant: "San Francisco 49ers",
+      note: null,
+      detail: "Modern open-air stadium with a translucent roof panel."
+    },
+    {
+      name: "Lumen Field",
+      city: "Seattle, Washington",
+      country: "usa",
+      lat: 47.5952, lng: -122.3316,
+      capacity: "69,000",
+      opened: 2002,
+      tenant: "Seattle Seahawks / Sounders",
+      note: null,
+      detail: "Distinctive roof design amplifies crowd noise. Known as one of the loudest venues in sports."
+    },
+    {
+      name: "BMO Field",
+      city: "Toronto, Ontario",
+      country: "canada",
+      lat: 43.6332, lng: -79.4186,
+      capacity: "45,736",
+      opened: 2007,
+      tenant: "Toronto FC / TFC",
+      note: null,
+      detail: "Expanded specifically for the 2026 World Cup. Canada's most intimate venue."
+    },
+    {
+      name: "BC Place",
+      city: "Vancouver, British Columbia",
+      country: "canada",
+      lat: 49.2768, lng: -123.1120,
+      capacity: "54,000",
+      opened: 1983,
+      tenant: "Vancouver Whitecaps / BC Lions",
+      note: null,
+      detail: "Hosted the 2010 Winter Olympics and 2015 Women's World Cup Final."
+    },
+    {
+      name: "Estadio Azteca",
+      city: "Mexico City, Mexico",
+      country: "mexico",
+      lat: 19.3029, lng: -99.1505,
+      capacity: "83,000",
+      opened: 1966,
+      tenant: "Club América / Cruz Azul",
+      note: "⚽ Opening Match",
+      noteType: "opening",
+      detail: "Only stadium to host three World Cups (1970, 1986, 2026). Site of Maradona's 'Hand of God' goal. Sits at 2,240m elevation."
+    },
+    {
+      name: "Estadio BBVA",
+      city: "Monterrey, Mexico",
+      country: "mexico",
+      lat: 25.6692, lng: -100.2444,
+      capacity: "53,500",
+      opened: 2015,
+      tenant: "CF Monterrey (Rayados)",
+      note: null,
+      detail: "Latin America's first LEED-certified stadium. Steep grandstands with excellent sightlines."
+    },
+    {
+      name: "Estadio Akron",
+      city: "Zapopan / Guadalajara, Mexico",
+      country: "mexico",
+      lat: 20.6818, lng: -103.4626,
+      capacity: "49,800",
+      opened: 2010,
+      tenant: "Chivas de Guadalajara",
+      note: null,
+      detail: "Spherical coliseum-like design at 1,566m elevation. Home of the beloved Chivas."
+    }
+  ];
+
+  const countryColors = { usa: '#3a7bd5', mexico: '#2da44e', canada: '#d63b3b' };
+
+  function makeIcon(country) {
+    const color = countryColors[country];
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+        <path d="M16 0C7.2 0 0 7.2 0 16c0 11 16 24 16 24S32 27 32 16C32 7.2 24.8 0 16 0z"
+              fill="${color}" stroke="white" stroke-width="2"/>
+        <circle cx="16" cy="15" r="7" fill="white" opacity="0.25"/>
+        <text x="16" y="20" text-anchor="middle" font-size="11" font-family="Arial" font-weight="bold" fill="white">⚽</text>
+      </svg>`;
+    return L.divIcon({
+      html: svg,
+      className: '',
+      iconSize: [32, 40],
+      iconAnchor: [16, 40],
+      popupAnchor: [0, -42]
+    });
+  }
+
+  const map = L.map('map', {
+    center: [38, -95],
+    zoom: 4,
+    zoomControl: true
+  });
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  venues.forEach(v => {
+    const badgeHtml = v.note ? `
+      <span class="popup-badge badge-${v.noteType}">${v.note}</span>
+    ` : '';
+
+    const popup = `
+      <div class="popup-inner">
+        <div class="popup-country-tag tag-${v.country}">
+          ${v.country === 'usa' ? '🇺🇸 United States' : v.country === 'mexico' ? '🇲🇽 Mexico' : '🇨🇦 Canada'}
+        </div>
+        <div class="popup-name">${v.name}</div>
+        <div class="popup-city">${v.city}</div>
+        <hr class="popup-divider" />
+        <div class="popup-meta">
+          <div class="popup-row">
+            <span class="popup-row-label">Capacity</span>
+            <span class="popup-row-value">${v.capacity}</span>
+          </div>
+          <div class="popup-row">
+            <span class="popup-row-label">Opened</span>
+            <span class="popup-row-value">${v.opened}</span>
+          </div>
+          <div class="popup-row">
+            <span class="popup-row-label">Home Team</span>
+            <span class="popup-row-value">${v.tenant}</span>
+          </div>
+        </div>
+        <hr class="popup-divider" />
+        <div style="font-size:11px;color:#8899aa;line-height:1.5;">${v.detail}</div>
+        ${badgeHtml}
+      </div>`;
+
+    L.marker([v.lat, v.lng], { icon: makeIcon(v.country) })
+      .addTo(map)
+      .bindPopup(popup, { maxWidth: 280 });
+  });
+</script>
+</body>
+</html>
